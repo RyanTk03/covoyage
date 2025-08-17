@@ -13,7 +13,6 @@ export async function POST(request: NextRequest) {
 			return new Response("Clerk user not created", { status: 400 });
 		}
 
-		const client = clerkClient();
 		let userCreated = null;
 
 		if (sessionClaims.metadata.userRegistered) {
@@ -32,7 +31,7 @@ export async function POST(request: NextRequest) {
 			}
 		};
 
-		await client.users.updateUser(userId, {
+		await clerkClient.users.updateUser(userId, {
 			publicMetadata: { userRegistered: true },
 		});
 
