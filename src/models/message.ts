@@ -1,31 +1,27 @@
-import mongoose from "mongoose"
-
-export interface MessageSchema extends mongoose.Document {
-    receiver: mongoose.Schema.Types.ObjectId
-    sender: mongoose.Schema.Types.ObjectId
-    message: mongoose.Schema.Types.String
-}
+import mongoose from "mongoose";
 
 const messageSchema = new mongoose.Schema({
     receiver: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
     },
     sender: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
     },
     message: {
         type: mongoose.Schema.Types.String,
         minlength: 2,
         maxlength: 4000,
     },
-    createdAt: {
+    sentAt: {
         type: mongoose.Schema.Types.Date,
-        default: Date.now
+        default: Date.now,
     },
-})
+});
 
-const Message = mongoose.models.Message || mongoose.model<MessageSchema>('Message', messageSchema)
+export type MessageDoc = mongoose.InferSchemaType<typeof messageSchema>;
 
-export { Message, messageSchema }
+const Message = mongoose.models.Message || mongoose.model<MessageDoc>('Message', messageSchema);
+
+export { Message, messageSchema };

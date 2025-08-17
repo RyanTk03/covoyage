@@ -1,65 +1,47 @@
-// import { validateUserParams } from "@/lib/api/validators";
-// import { connectToDatabase } from "@/lib/db";
-// import { User } from "@/models/user";
-// import { NextRequest } from "next/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
+import { createUser, getUser } from "@/services/user";
+import { addNotification } from "@/services/notification";
+import { NotificationTypeCodeEnum } from "@/lib/constants";
+import { NextRequest } from "next/server";
 
-// connectToDatabase()
+export async function POST(request: NextRequest) {
+	try {
+		const { userId, sessionClaims } = auth();
+		const body = await request.json();
 
-// export async function GET(request: NextRequest) {
-//     const searchParams = request.nextUrl.searchParams;
+		if (!userId) {
+			return new Response("Clerk user not created", { status: 400 });
+		}
 
-//     const limit = parseInt(searchParams.get('limit') || '0');
-//     const offset = parseInt(searchParams.get('offset') || '0')
+		const client = clerkClient();
+		let userCreated = null;
 
-//     if (limit) {
-//         try {
-//             const users = await User.find()
-//             .sort({createdAt: -1})
-//             .skip(offset)
-//             .limit(limit);
-//             return Response.json({users}, {status: 200});
+		if (sessionClaims.metadata.userRegistered) {
+			return Response.json(
+				{ message: 'unauthorized' },
+				{ status: 403 }
+			);
+		}
 
-//         } catch (error) {
-//             console.error(error);
-//             return Response.json({
-//                 error: "Cannot get the list of user from the database: an unknow error occured"
-//             },
-//             {
-//                 status: 500
-//             });
-//         }
-//     }
+		if (!sessionClaims.metadata.userRegistered) {
+			userCreated = await createUser(body);
+			if (userCreated) {
+				addNotification(userId, {
+					type: NotificationTypeCodeEnum.WELCOME,
+				});
+			}
+		};
 
-//     console.error("The limit should be greater than 0");
-//     return Response.json({
-//         error: "Cannot get the list of user: you should provide a limit greater than 0 in your request"
-//     },
-//     {
-//         status: 400
-//     });
-// }
+		await client.users.updateUser(userId, {
+			publicMetadata: { userRegistered: true },
+		});
 
-// export async function POST(request: NextRequest) {
-//     const userData = await request.json();
-
-//     const { error } = validateUserParams(userData)
-
-//     if (!error) {
-//         try {
-//             const user = new User({...userData})
-//             await user.save()
-            
-//             return Response.json({message: "User registered successfully."}, {status: 201});
-//         } catch (error) {
-//             console.error(error);
-//             return Response.json({
-//                 error: "Cannot register the user: an unknow error occured"
-//             },
-//             {
-//                 status: 500
-//             });
-//         }
-//     }
-
-//     return Response.json({error}, {status: 400});
-// }
+		return Response.json(
+			{ userRegistered: !!userCreated },
+			{ status: 200 }
+		);
+	} catch (error) {
+		console.error("User adding error:", error);
+		return Response.json({ message: "Server error" }, { status: 500 });
+	}
+}

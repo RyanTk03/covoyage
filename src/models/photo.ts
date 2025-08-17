@@ -1,26 +1,26 @@
-import mongoose from "mongoose"
-
-export interface PhotoSchema extends mongoose.Document {
-    path: string
-    createdAt: Date
-}
+import mongoose from "mongoose";
 
 const photoSchema = new mongoose.Schema({
+    uploaderId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    },
+    rideId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Ride',
+    },
     path: {
-        type: String,
+        type: mongoose.Schema.Types.String,
         maxlength: 255,
     },
-    createdAt: {
+    uploadedAt: {
         type: mongoose.Schema.Types.Date,
-        default: Date.now
+        default: Date.now,
     }
-})
+});
 
-const Photo = mongoose.models.Photo || mongoose.model<PhotoSchema>('Photo', photoSchema)
+export type PhotoDoc = mongoose.InferSchemaType<typeof photoSchema>;
 
-export interface PhotoData {
-    id: string
-    path: string
-}
+const Photo = mongoose.models.Photo || mongoose.model<PhotoDoc>('Photo', photoSchema);
 
-export { Photo, photoSchema }
+export { Photo, photoSchema };

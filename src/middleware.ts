@@ -1,18 +1,37 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { NextRequest, NextResponse } from 'next/server';
 
+const isWelcomeRoute = createRouteMatcher(['/welcome']);
+const isProtectedRoute = createRouteMatcher(['/dashboard(.*)', '/api/:version/me/(.*)']);
+const isApiRoute = createRouteMatcher(['/api/(.*)']);
 
-const isProtectedRoute = createRouteMatcher([
-	'/dashboard(.*)',
-	'/users(.*)',
-	'/travels(.*)'
-]);
+export default clerkMiddleware(async (auth, req: NextRequest) => {
+	const { userId, sessionClaims, redirectToSignIn } = await auth()
 
-export default clerkMiddleware((auth, req) => {
-	if (!auth().userId && isProtectedRoute(req)) {
-		return auth().redirectToSignIn();
+	// For users visiting /welcome, don't try to redirect
+	if (userId && isWelcomeRoute(req)) {
+		return NextResponse.next()
 	}
-});
+
+	// If the user isn't signed in and the route is private, redirect to sign-in
+	if (!userId && isProtectedRoute(req)) return redirectToSignIn({ returnBackUrl: req.url })
+
+	// Catch users who do not have `savedUser: true` in their publicMetadata
+	// Redirect them to the /welcome route to complete onboarding
+	if (userId && !sessionClaims?.metadata?.userRegistered && isProtectedRoute(req)) {
+		const welcomeUrl = new URL('/welcome', req.url)
+		return NextResponse.redirect(welcomeUrl)
+	}
+
+	// If the user is logged in and the route is protected, let them view.
+	if (userId && isProtectedRoute(req)) return NextResponse.next()
+})
 
 export const config = {
-	matcher: ['/((?!.*\\..*|_next).*)', '/', '/(api|trpc)(.*)'],
-};
+	matcher: [
+		// Skip Next.js internals and all static files, unless found in search params
+		'/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+		// Always run for API routes
+		'/(api|trpc)(.*)',
+	],
+}

@@ -27,7 +27,7 @@ const MessageDialog = (props: DialogProps) => {
 
     const handleSendMessage = () => {
 		setSending(true);
-        fetch('/api/v0/messages/', {
+        fetch('/api/v0/me/messages/', {
 			method: 'POST',
 			body: JSON.stringify({
 				sender: props.sender,
@@ -46,7 +46,7 @@ const MessageDialog = (props: DialogProps) => {
 			setSending(false);
 		})
 		.catch(error => {
-			console.log(error);
+			console.error(error);
 			setSuccess(false)
 			setError(true);
 			setSending(false);
@@ -79,9 +79,6 @@ const MessageDialog = (props: DialogProps) => {
 			!success && error ? <Alert className="my-2" variant="ghost" color="red">Something went wrong please try again</Alert> :
 			""}
 			<DialogBody>
-				<Typography className="mb-10 -mt-7 " color="gray" variant="lead">
-					Write the message and then click send message.
-				</Typography>
 				<div className="grid gap-6">
 					<Textarea label="Message" onChange={e => setMessage(e.target.value)}/>
 				</div>

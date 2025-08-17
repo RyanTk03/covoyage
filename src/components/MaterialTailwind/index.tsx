@@ -32,6 +32,8 @@ import {
     DialogHeader,
     DialogBody,
     DialogFooter,
+	Chip,
+	Radio,
 } from "@material-tailwind/react"
 
 export {
@@ -66,4 +68,6 @@ export {
     DialogHeader,
     DialogBody,
     DialogFooter,
+	Chip,
+	Radio,
 }

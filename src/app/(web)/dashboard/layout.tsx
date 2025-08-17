@@ -1,36 +1,30 @@
 import DashboardSidebar from '@/components/DashbordSidebar';
 import React from 'react';
-import { auth } from '@clerk/nextjs/server';
-import { fetchUser } from '@/lib/api/user';
-import { redirect } from 'next/navigation';
+import { auth, clerkClient, currentUser } from '@clerk/nextjs/server';
+import { getUser } from '@/services/user';
 
 
-export default async function DashboardLayout({children, params}) {
-    const authUserId = auth().userId;
-    let user = null, error;
+export default async function DashboardLayout({children}) {
+    const { userId } = auth();
+	if (!userId) {
+		throw new Error("No logged in user");
+	}
 
-    if (authUserId) {
-        while (!user) {
-            const res = await fetchUser(authUserId);
-            user = res?.user;
-        }
-    }
-
-
+    const user = await getUser(userId);
 
     return (
         <>
-        {authUserId && !error && 
+        {user && 
             <div className="flex">
                 <aside>
                     <DashboardSidebar user={{
-                        clerkId: user.clerkId,
-                        username: user.username,
+                        clerkId: user.id,
+                        username: user.username ?? undefined,
                         imageUrl: user.imageUrl,
-                        description: user.description
+                        description: user.description ?? undefined,
                     }}/>
                 </aside>
-                <main className="w-4/5">
+                <main className="w-full">
                     {children}
                 </main>
             </div>

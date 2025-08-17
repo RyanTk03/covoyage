@@ -15,12 +15,14 @@ export default function Home() {
 						src="/images/home-4.jpg"
 						fill
 						objectFit="cover"
+						sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
 					/>
 					<Image
 						alt=""
 						src="/images/home-5.jpg"
 						fill
 						objectFit="cover"
+						sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
 					/>
 				</div>
 				<div>
@@ -29,12 +31,14 @@ export default function Home() {
 						src="/images/home-2.jpg"
 						fill
 						objectFit="cover"
+						sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
 					/>
 					<Image
 						alt=""
 						src="/images/home-3.jpg"
 						fill
 						objectFit="cover"
+						sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
 					/>
 				</div>
 				<div>
@@ -43,12 +47,14 @@ export default function Home() {
 						src="/images/home-3.jpg"
 						fill
 						objectFit="cover"
+						sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
 					/>
 					<Image
 						alt=""
 						src="/images/home-2.jpg"
 						fill
 						objectFit="cover"
+						sizes="(max-width: 468px) 100vw, (max-width: 768px) 50vw, 33vw"
 					/>
 				</div>
 			</div>

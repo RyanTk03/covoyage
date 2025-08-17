@@ -73,24 +73,6 @@ const Step2 = ({setFormData, formData}) => {
                         value={formData.arrival.city}
                         required
                     />
-                    <Input
-                        label="Date"
-                        type="date"
-                        labelProps={{
-                            className: labelClasses
-                        }}
-                        className={inputClasses}
-                        containerProps={{ className: containerClasses }}
-                        onChange={e => setFormData({
-                            ...formData,
-                            arrival: {
-                                ...formData.arrival,
-                                date: e.target.value
-                            }
-                        })}
-                        value={formData.arrival.date}
-                        required
-                    />
                 </div>
             </div>
         </fieldset>

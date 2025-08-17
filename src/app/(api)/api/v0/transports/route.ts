@@ -1,14 +1,12 @@
-import { connectToDatabase } from "@/lib/db";
-import { Transport } from "@/models/transport";
-
+import { getTransports } from "@/services/transport";
 
 export async function GET() {
     try {
-        await connectToDatabase();
-        const transports = await Transport.find();
+        const transports = await getTransports();
 
-        return Response.json({transports}, {status: 200});
-    } catch (error) {
-        return Response.json({error}, {status: 500});
+        return Response.json({ transports }, { status: 200 });
+    } catch (error: any) {
+        console.error(error);
+        return Response.json({ error: error.message }, { status: 500 });
     }
 }

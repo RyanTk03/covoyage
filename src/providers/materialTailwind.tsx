@@ -1,5 +1,5 @@
 "use client";
-import React, { ReactNode } from 'react';
+import React, { PropsWithChildren } from 'react';
 import { ReactNodeLike } from 'prop-types';
 import { ThemeProvider } from "@material-tailwind/react";
 
@@ -14,7 +14,7 @@ import { ThemeProvider } from "@material-tailwind/react";
  * @returns A component that wrap all the elements of the app with the material
  * tailwind theme provider
  */
-export default function MaterialTailwindProvider({children}: {children: NonNullable<ReactNodeLike>}) {
+export default function MaterialTailwindProvider({children}: PropsWithChildren) {
     return (
         <ThemeProvider>
             {children}

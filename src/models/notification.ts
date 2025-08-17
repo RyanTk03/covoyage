@@ -1,44 +1,44 @@
-import { NotificationStateCodeEnum, NotificationTypeCodeEnum } from "@/lib/notification"
-import mongoose from "mongoose"
+import mongoose from "mongoose";
+import { NotificationTypeCodeEnum } from "@/lib/constants";
 
-export interface NotificationSchema extends mongoose.Document {
-    subject: string
-    content: string
-    state: string
-    type: string
-    action: string
-}
+const notificationDetailsSchema = new mongoose.Schema({
+	ride: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'Ride',
+		default: null,
+	},
+	user: {
+		type: mongoose.Schema.Types.String,
+		default: null,
+	},
+}, { _id: false })
 
 const notificationSchema = new mongoose.Schema({
-    subject: {
+    userId: {
         type: mongoose.Schema.Types.String,
-        maxlength: 255
+		index: true,
     },
-    content: {
+    type: {
         type: mongoose.Schema.Types.String,
-        maxlength: 1500
+        enum: Object.values(NotificationTypeCodeEnum),
     },
-    type: mongoose.Schema.Types.String,
-    state: mongoose.Schema.Types.String,
-    action: {
-        type: mongoose.Schema.Types.String,
-        maxLength: 255
+    isRead: {
+        type: mongoose.Schema.Types.Boolean,
+        default: false,
+		index: true,
     },
-    createdAt: {
-        type: mongoose.Schema.Types.Date,
-        default: Date.now,
-    }
+	details: {
+		type: notificationDetailsSchema,
+		dafault: null
+	}
+}, {
+	timestamps: true
 })
+.index({ userId: 1, isRead: 1 })
+.index({ _id: 1, userId: 1, isRead: 1 });
 
-const Notification = mongoose.models.Notification || mongoose.model<NotificationSchema>('Notification', notificationSchema)
+export type NotificationDoc = mongoose.InferSchemaType<typeof notificationSchema>;
 
-export interface NotificationData extends mongoose.Document {
-    id: string
-    subject: string
-    content: string
-    state: NotificationStateCodeEnum
-    type: NotificationTypeCodeEnum
-    action: string
-}
+const Notification = mongoose.models.Notification || mongoose.model<NotificationDoc>('Notification', notificationSchema);
 
-export { Notification, notificationSchema }
+export { Notification, notificationSchema };

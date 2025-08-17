@@ -25,10 +25,9 @@ const Step3 = ({ transports, setFormData, formData }) => {
                         transport: value
                     })}
                     label="Select the transport means"
-                    value={formData.transport}
                 >
                     {transports.map((transport, index) => (
-                        <Option key={index} value={transport._id}>{transport.value}</Option>
+                        <Option key={index} value={transport._id}>{transport.label}</Option>
                     ))}
                 </Select>
             </div>

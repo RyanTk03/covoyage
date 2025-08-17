@@ -2,35 +2,34 @@
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from "react";
 import { Avatar, Badge, Button, Card, List, ListItem, ListItemPrefix, Textarea, Typography } from "@/components/MaterialTailwind";
-import { FaUserCog, FaBell, FaImages } from "react-icons/fa";
-import { MdModeOfTravel } from "react-icons/md";
+import { FaUserCog, FaBell, FaImages, FaMapMarkedAlt } from "react-icons/fa";
 import { GoSignOut } from "react-icons/go";
 import { SignOutButton, useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
+import { useNotifications } from '@/hooks/useNotifications';
 
 export default function DashboardSidebar({user}: {user: {
     clerkId: string,
-    imageUrl: string,
-    username: string,
-    description: string
+    imageUrl?: string,
+    username?: string,
+    description?: string
 }}) {
     const [description, setDescription] = useState(user.description);
     const [userDescription, setUserDescription] = useState(user.description);
     const [fetching, setFetching] = useState(false);
     const [descriptionChanged, setDescriptionChanged] = useState(false);
-	const [notificationNbr, setNotificationNbr] = useState('');
-	const {userId} = useAuth();
+	const { notificationsCounts } = useNotifications();
 
     const pathname = usePathname();
     const router = useRouter();
 
     const handleNavigation = (segment) => {
-        router.push(segment);
+        router.push(`/dashboard/${segment}`);
     }
 
     const handleDescriptionSave = () => {
         setFetching(true)
-        fetch(`/api/v0/users/${user.clerkId}/description`, {
+        fetch(`/api/v0/me/description`, {
             method: "PUT",
             body: JSON.stringify({
                 description
@@ -45,7 +44,7 @@ export default function DashboardSidebar({user}: {user: {
             setFetching(false);
         })
         .catch(err => {
-            console.log(err);
+            console.error(err);
             setFetching(false);
         });
     }
@@ -58,26 +57,13 @@ export default function DashboardSidebar({user}: {user: {
         }
     }, [description, userDescription]);
 
-	useEffect(() => {
-		fetch(`/api/v0/users/${userId}/notifications/count`)
-		.then(res => {
-			if (res.ok) {
-				res.json()
-				.then(data => setNotificationNbr(data.count))
-				.catch(error => console.log(error));
-			}
-		})
-		.catch(error => console.log(error));
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-
     return (
-        <Card className="h-[100vh] w-full max-w-[20rem] p-4 shadow-xl shadow-blue-gray-900/5 bg-primary-color sticky top-0">
+        <Card className="h-[100vh] w-full max-w-[20rem] p-4 shadow-xl shadow-blue-gray-900/5 bg-primary-color rounded-tl-none sticky top-0">
             <div className="flex flex-col">
                 <div className="mb-2 p-4 flex flex-col items-center">
                     <Avatar
                         withBorder={true}
-                        color="gray"
+                        color="blue"
                         size="xl"
                         src={user.imageUrl}
                     />
@@ -106,7 +92,7 @@ export default function DashboardSidebar({user}: {user: {
                     className={`hover:bg-[#d0e3fd] focus:bg-[#d0e3fd] ${pathname.includes("my-trips") ? "bg-[#d0e3fd]" : ""}`}
                 >
                     <ListItemPrefix>
-                        <MdModeOfTravel className="h-5 w-5" />
+                        <FaMapMarkedAlt className="h-5 w-5" />
                     </ListItemPrefix>
                     My trips
                 </ListItem>
@@ -115,7 +101,7 @@ export default function DashboardSidebar({user}: {user: {
                     className={`hover:bg-[#d0e3fd] focus:bg-[#d0e3fd] ${pathname.includes("notifications") ? "bg-[#d0e3fd]" : ""}`}
                 >
                     <ListItemPrefix>
-                        <Badge content={notificationNbr} withBorder>
+                        <Badge content={notificationsCounts.unread} withBorder>
                             <FaBell className="h-5 w-5" />
                         </Badge>
                     </ListItemPrefix>
@@ -131,10 +117,10 @@ export default function DashboardSidebar({user}: {user: {
                     Travels photos
                 </ListItem>
             </List>
-                <div className="flex gap-2 mt-5 p-2 rounded-md hover:bg-[#efefef]">
-                    <GoSignOut className="h-5 w-5" />
-                    <SignOutButton />
-                </div>
+			<div className="flex gap-2 mt-5 p-2 rounded-md hover:bg-[#efefef]">
+				<GoSignOut className="h-5 w-5" />
+				<SignOutButton />
+			</div>
         </Card>
     );
 };

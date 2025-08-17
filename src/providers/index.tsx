@@ -1,7 +1,7 @@
-import React from 'react';
-import { ReactNodeLike } from 'prop-types';
+import React, { PropsWithChildren } from 'react';
 import ClerkProvider from './clerk';
 import MaterialTailwindProvider from './materialTailwind';
+import EdgeStoreProvider from './edgestore';
 
 
 /**
@@ -14,11 +14,13 @@ import MaterialTailwindProvider from './materialTailwind';
  * @returns A component that wrap all the elements of the app with all the
  * providers used in the application
  */
-export default function Providers({children}: {children: NonNullable<ReactNodeLike>}) {
+export default function Providers({children}: PropsWithChildren) {
     return (
         <ClerkProvider>
             <MaterialTailwindProvider>
-                {children}
+				<EdgeStoreProvider>
+                	{children}
+				</EdgeStoreProvider>
             </MaterialTailwindProvider>
         </ClerkProvider>
     );

@@ -1,31 +1,27 @@
 "use client";
 import React, { useEffect, useMemo, useState } from 'react';
 import { Button, Typography } from '@/components/MaterialTailwind';
-import DashboardTravelCard from '@/components/DashboardTravelCard';
-import { TravelStateCodeEnum } from '@/lib/travel';
-import { useAuth } from '@clerk/nextjs';
-
+import DashboardRideCard from '@/components/DashboardRideCard';
+import { RideStateCodeEnum } from '@/lib/constants';
 
 export default function MemoriesPage() {
-    const [travels, setTravels] = useState([]);
+    const [rides, setRides] = useState([]);
     const [error, setError] = useState(false);
     const [loading, setLoading] = useState(true);
     const [canceled, setCanceled] = useState(false);
-
-    const userId = useAuth().userId;
     
     const handleCancel = (id) => {
-        fetch(`/api/v0/travels/${id}`, {method: "DELETE"})
+        fetch(`/api/v0/rides/${id}`, {method: "DELETE"})
         .then(res => {
             if (res.ok) {
                 setCanceled(true);
             }
         })
-        .catch(err => console.log(err))
+        .catch(err => console.error(err))
     }
 
     useEffect(() => {
-        fetch(`/api/v0/users/${userId}/travels`)
+        fetch('/api/v0/me/rides')
         .then(res => {
             if (!res.ok) {
                 setError(true);
@@ -33,7 +29,8 @@ export default function MemoriesPage() {
             } else {
                 res.json()
                 .then(data => {
-                    setTravels(data.travels);
+					console.log(data)
+                    setRides(data.rides);
                     setError(false);
                     setLoading(false);
                 })
@@ -47,48 +44,35 @@ export default function MemoriesPage() {
             setError(true);
             setLoading(false);
         });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const commingTravel: any = useMemo(() => {
-        if (!travels) return null;
-        return travels.find((travel: any) => travel.state === TravelStateCodeEnum.COMMING);
-    }, [travels]);
+    const commingRides: any = useMemo(() => {
+        if (!rides) return null;
+        return rides.find((ride: any) => ride.state === RideStateCodeEnum.COMMING);
+    }, [rides]);
 
-    const otherTravels: any = useMemo(() => {
-        if (!travels) return [];
-        return travels.filter((travel: any) => travel.state !== TravelStateCodeEnum.COMMING);
-    }, [travels]);
+    const otherRides: any = useMemo(() => {
+        if (!rides) return [];
+        return rides.filter((ride: any) => ride.state !== RideStateCodeEnum.COMMING);
+    }, [rides]);
 
     return (!error ?
         <div className="w-full">
-            <Typography variant="h2">My trips</Typography>
+            <Typography variant="h2" className="p-5">My trips</Typography>
             <div className="flex flex-col w-full p-1 pr-4">
-                <div className="flex flex-col border-2 border-gray-color rounded-md p-2 my-3 w-full">
+                <div className="flex flex-col border-2 border-gray-color rounded-md p-2 my-5 w-full">
                     <Typography variant="h3" color="green">Comming</Typography>
-                    {canceled ? <Typography variant="lead">Travel canceled</Typography> : commingTravel ?
-                    <DashboardTravelCard
-                        id={commingTravel._id}
-                        title={commingTravel.title}
-                        departureDate={new Date(commingTravel.departure.date).toLocaleDateString()}
-                        arrivalDate={new Date(commingTravel.arrival.date).toLocaleDateString()}
-                        travellersNumber={commingTravel.numberOfTraveller}
-                        state={commingTravel.state}
-                    /> : null}
-                    {<Button disabled={!commingTravel || canceled} variant="text" color="red" onClick={() => handleCancel(commingTravel._id)} className="self-end">Cancel</Button>}
+                    {canceled ? <Typography variant="lead">Travel canceled</Typography> : commingRides ?
+                    <DashboardRideCard ride={commingRides}/> : null}
+                    {<Button disabled={!commingRides || canceled} variant="text" color="red" onClick={() => handleCancel(commingRides._id)} className="self-end">Cancel</Button>}
                 </div>
-                <div className="border-t-2 border-primary-color py-4 w-full">
+                <div className="border-t-2 border-primary-color py-4 px-10 w-full">
                     <Typography variant="h3" color="gray">Past trips</Typography>
                     <div className="flex flex-col w-full">
-                        {otherTravels.map(travel =>
-                            <DashboardTravelCard
-                                key={travel._id}
-                                id={travel._id}
-                                title={travel.title}
-                                departureDate={new Date(travel.departure.date).toLocaleDateString()}
-                                arrivalDate={new Date(travel.arrival.date).toLocaleDateString()}
-                                travellersNumber={travel.numberOfTraveller}
-                                state={travel.state}
+                        {otherRides.map(ride =>
+                            <DashboardRideCard
+                                key={ride._id}
+                                ride={ride}
                             />
                         )}
                     </div>

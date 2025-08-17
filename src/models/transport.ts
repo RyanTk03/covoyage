@@ -1,25 +1,21 @@
-import { TransportCodeEnum } from "@/lib/transport"
-import mongoose from "mongoose"
-
-interface TransportSchema extends mongoose.Document {
-    code: string
-    value: string
-}
+import mongoose from "mongoose";
+import { TransportCodeEnum } from "@/lib/constants";
 
 const transportSchema = new mongoose.Schema({
     code: {
         type: mongoose.Schema.Types.String,
+        enum: Object.values(TransportCodeEnum),
         unique: true,
+		required: true,
     },
-    value: mongoose.Schema.Types.String
-})
+    label: {
+        type: mongoose.Schema.Types.String,
+		required: true,
+    },
+});
 
-const Transport = mongoose.models.Transport || mongoose.model<TransportSchema>('Transport', transportSchema)
+export type TransportDoc = mongoose.InferSchemaType<typeof transportSchema>;
 
-export interface TransportData {
-    _id: string
-    code: TransportCodeEnum
-    value: string
-}
+const Transport = mongoose.models.Transport || mongoose.model('Transport', transportSchema);
 
-export { Transport, transportSchema }
+export { Transport, transportSchema };
